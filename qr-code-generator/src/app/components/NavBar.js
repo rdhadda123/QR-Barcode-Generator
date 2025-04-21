@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { supabase } from "../../supabase";
+import { getSupabaseClient } from "../../supabase";
 import { useRouter } from "next/navigation";
 
 
@@ -10,11 +10,14 @@ export default function Navbar() {
     const router = useRouter();
   
     useEffect(() => {
+      const supabase = getSupabaseClient();
+
       const getSession = async () => {
         const {
           data: { session },
           error,
         } = await supabase.auth.getSession();
+
         if (session?.user) {
           setUser(session.user);
         }
@@ -32,6 +35,7 @@ export default function Navbar() {
     }, []);
   
     const handleLogout = async () => {
+      const supabase = getSupabaseClient();
       await supabase.auth.signOut();
       router.push("/login");
     };
