@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QR Code Generator</title>
+</head>
+<body>
+  <h2>QR Code Generator</h2>
+  <form id="qrForm">
+    <input type="text" id="linkInput" placeholder="Enter a link" required />
+    <button type="submit">Generate QR</button>
+  </form>
+  <div id="qrResult"></div>
+
+  <script>
+    document.getElementById('qrForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const link = document.getElementById('linkInput').value;
+      const res = await fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: link })
+      });
+      const data = await res.json();
+      if (data.qr) {
+        document.getElementById('qrResult').innerHTML = `<img src="${data.qr}" alt="QR Code" />`;
+      } else {
+        document.getElementById('qrResult').innerText = "Error generating QR code.";
+      }
+    });
+  </script>
+</body>
+</html>
