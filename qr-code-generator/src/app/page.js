@@ -189,23 +189,30 @@ const Home = () => {
   return (
     <div>
       <NavBar></NavBar>
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-blue-500">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-sky-900">
           <div>Welcome to QR Code Generator!</div>
           <div>Login/Sign Up to continue!</div>
           <main className={styles.main}>
         <h1 className={styles.title}>QR & Barcode Generator</h1>
 
         <div className={styles.inputSection}>
+        <label htmlFor="text-input-area" >
+                Enter Text or URL:
+          </label>
           <textarea
+          id = "text-input-area"
             className={styles.textarea}
-            placeholder="Enter text or URL here..."
+            placeholder="e.g., https://example.com or 'My Text'"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             rows={4}
           />
 
           <div className={styles.controls}>
-            <select
+          <label htmlFor="code-option" className={styles.visuallyHidden}>
+                  Enter Text or URL
+              </label>
+            <select id="code-option"
               className={styles.select}
               value={codeType}
               onChange={(e) => setCodeType(e.target.value)}
@@ -229,9 +236,9 @@ const Home = () => {
         {error && <p className={styles.error}>{error}</p>}
 
         <div className={styles.outputSection}>
-          <h2>Generated Code:</h2>
+        <label htmlFor="generated-code-canvas">Generated Code:</label>
           <div className={styles.canvasContainer}>
-             <canvas
+             <canvas id="generated-code-canvas"
                   ref={canvasRef}
                   className={styles.canvas}
                   width={codeType === 'qrcode' ? 256 : 300}
