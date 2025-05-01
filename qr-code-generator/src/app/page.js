@@ -190,8 +190,8 @@ const Home = () => {
     <div>
       <NavBar></NavBar>
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-sky-900">
-          <div>Welcome to QR Code Generator!</div>
-          <div>Login/Sign Up to save your created QR/Barcodes and access them whenever you desire!</div>
+          <div className="text-2xl font-semibold mt-2 mb-4">Welcome to QR Code Generator!</div>
+          <div className="text-lg text-center mb-2 px-4">Login/Sign Up to save your created QR/Barcodes and access them whenever you desire!</div>
           <main className={styles.main}>
         <h1 className={styles.title}>QR & Barcode Generator</h1>
 
@@ -210,7 +210,7 @@ const Home = () => {
 
           <div className={styles.controls}>
           <label htmlFor="code-option" className={styles.visuallyHidden}>
-                  Enter Text or URL
+                  Type of Generation
               </label>
             <select id="code-option"
               className={styles.select}
