@@ -6,6 +6,7 @@ import JsBarcode from 'jsbarcode';
 import styles from '../../styles/Home.module.css'
 import Link from 'next/link';
 import NavBar from './components/NavBar';
+import { supabase } from '../supabase';
 
 const barcodeTypes = [
   'CODE128',
@@ -32,6 +33,29 @@ const Home = () => {
   //to render the QR codes and barcodes visually. They work by taking your input 
   //text and the canvas element as arguments, and then they programmatically draw the 
   //pixels, lines, and patterns that make up the code directly onto that canvas surface."
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const getSession = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+      }
+    };
+
+    getSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
   const generateCode = useCallback(() => {
     setError(null);
@@ -155,6 +179,10 @@ const Home = () => {
   };
 
   const handleSave = () => {
+      if (!user) {
+        alert('Please login or register to save codes.');
+        return;
+      }
       if (!generatedCodeDataUrl) {
           alert('No code generated to save.');
           return;
@@ -190,8 +218,12 @@ const Home = () => {
     <div>
       <NavBar></NavBar>
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-sky-900">
-          <div className="text-2xl font-semibold mt-2 mb-4">Welcome to QR Code Generator!</div>
-          <div className="text-lg text-center mb-2 px-4">Login/Sign Up to save your created QR/Barcodes and access them whenever you desire!</div>
+          {!user && (
+            <>
+              <div className="text-2xl font-semibold mt-2 mb-4">Welcome to QR Code Generator!</div>
+              <div className="text-lg text-center mb-2 px-4">Login/Sign Up to save your created QR/Barcodes and access them whenever you desire!</div>
+            </>
+          )}
           <main className={styles.main}>
         <h1 className={styles.title}>QR & Barcode Generator</h1>
 
