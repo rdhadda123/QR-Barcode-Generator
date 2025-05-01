@@ -53,7 +53,7 @@ export default function Navbar() {
               <span className="text-gray-800">Hello, {user.email}</span>
               <button
                 onClick={handleLogout}
-                className="text-red-600 hover:underline"
+                className="text-red-600 hover:underline cursor-pointer"
               >
                 Sign Out
               </button>
