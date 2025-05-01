@@ -101,7 +101,7 @@ export default function AuthPage() {
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-xl hover:bg-blue-600 transition disabled:opacity-50"
+            className="w-full bg-blue-500 text-white py-2 rounded-xl hover:bg-blue-600 transition disabled:opacity-50 cursor-pointer"
             disabled={loading}
           >
             {loading ? "Loading..." : isSignUp ? "Sign Up" : "Log In"}
@@ -112,7 +112,7 @@ export default function AuthPage() {
           <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}
-            className="text-blue-500 hover:underline"
+            className="text-blue-500 hover:underline cursor-pointer"
           >
             {isSignUp ? "Log In" : "Sign Up"}
           </button>

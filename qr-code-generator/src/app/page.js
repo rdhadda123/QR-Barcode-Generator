@@ -191,7 +191,7 @@ const Home = () => {
       <NavBar></NavBar>
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-sky-900">
           <div>Welcome to QR Code Generator!</div>
-          <div>Login/Sign Up to continue!</div>
+          <div>Login/Sign Up to save your created QR/Barcodes and access them whenever you desire!</div>
           <main className={styles.main}>
         <h1 className={styles.title}>QR & Barcode Generator</h1>
 
