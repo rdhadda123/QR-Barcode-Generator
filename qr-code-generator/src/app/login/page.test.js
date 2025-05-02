@@ -33,7 +33,6 @@ import { render, screen, waitFor, act, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom';
 import AuthPage from './page';
 
-// Get mocked Supabase instance and methods
 const { supabase, __mockSignInWithPassword, __mockSignUp } = require('../../supabase');
 const mockAuth = supabase.auth;
 
@@ -56,7 +55,6 @@ describe('AuthPage Component', () => {
 
   // Test case: Default login form rendering
   it('renders login form by default', () => {
-    // Render the component
     render(<AuthPage />);
     
     // Assert login form elements are present
@@ -67,10 +65,8 @@ describe('AuthPage Component', () => {
 
   // Test case: Successful login submission
   it('submits login form with correct data', async () => {
-    // Render the component
     render(<AuthPage />);
     
-    // Fill out the login form
     fireEvent.change(screen.getByPlaceholderText(/email/i), {
       target: { value: 'test@example.com' }
     });
@@ -79,7 +75,6 @@ describe('AuthPage Component', () => {
       target: { value: 'password123' }
     });
     
-    // Submit the form
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /log in/i }));
     });
@@ -95,15 +90,12 @@ describe('AuthPage Component', () => {
 
   // Test case: Successful signup submission
   it('submits signup form with correct data', async () => {
-    // Render the component
     render(<AuthPage />);
     
-    // Switch to signup form
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
     });
     
-    // Fill out all signup fields
     fireEvent.change(screen.getByPlaceholderText(/first name/i), {
       target: { value: 'John' }
     });
@@ -120,7 +112,6 @@ describe('AuthPage Component', () => {
       target: { value: 'securepassword' }
     });
     
-    // Submit the signup form
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
     });
