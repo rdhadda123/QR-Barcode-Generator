@@ -1,0 +1,196 @@
+/* styles/Saved.module.css */
+
+.container {
+    padding: 0 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f8f9fa;
+  }
+
+  
+  .main {
+    padding: 3rem 0; /* Slightly less padding than main page */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 900px; /* Allow slightly wider for list */
+  }
+  
+  .header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap; /* Allow wrapping */
+      gap: 1rem;
+  }
+  
+  .title {
+    margin: 0;
+    line-height: 1.15;
+    font-size: 2.5rem;
+    color: #333;
+    text-align: center;
+    /* Allow title to take space, but backlink pushes it */
+    flex-grow: 1;
+  }
+  
+  .backLink {
+    color: #024a70;
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+  
+  .backLink:hover {
+    text-decoration: underline;
+    background-color: #e7f3ff;
+    border-color: #cfe4ff;
+  }
+  
+  .list {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Space between items */
+  }
+  
+  .listItem {
+    background-color: #ffffff;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem; /* Space between image, details, button */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    color:black
+  }
+  
+  .imageContainer {
+      flex-shrink: 0; /* Prevent image container from shrinking */
+      width: 120px; /* Fixed width for consistency */
+      height: 120px; /* Fixed height */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f0f0; /* Background for container */
+      border: 1px solid #eee;
+      border-radius: 4px;
+      overflow: hidden; /* Hide parts of image if too large */
+  }
+  
+  .codeImage {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Scale image nicely within container */
+  }
+  
+  .noImage {
+      font-size: 0.8rem;
+      color: #888;
+      text-align: center;
+  }
+  
+  .details {
+    flex-grow: 1; /* Allow details to take up remaining space */
+    word-break: break-word; /* Break long text */
+  }
+  
+  .details p {
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  
+  .details p strong {
+      color: #555;
+  }
+  
+  .button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: #fff;
+    background-color: #6c757d; /* Default Gray */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap; /* Prevent button text wrapping */
+  }
+  
+  .button:hover {
+    opacity: 0.9;
+  }
+  
+  .deleteButton {
+    background-color: #007bff; /* Red */
+    flex-shrink: 0; /* Prevent button from shrinking */
+  }
+  
+  .deleteButton:hover {
+    background-color: #0063CC; /* Darker Red */
+  }
+  
+  .clearAllButton {
+     background-color: #007bff; /* Darker Red */
+     margin-bottom: 1.5rem; /* Space below */
+     align-self: flex-end; /* Position to the right */
+  }
+  .clearAllButton:hover {
+      background-color: #0063CC;
+  }
+  
+  
+  .emptyMessage {
+    margin-top: 2rem;
+    font-size: 1.1rem;
+    color: #6c757d;
+  }
+  
+  /* Basic responsiveness */
+  @media (max-width: 650px) {
+    .listItem {
+      flex-direction: column; /* Stack elements vertically */
+      align-items: flex-start; /* Align items to the start */
+      gap: 1rem;
+    }
+    .imageContainer {
+        width: 100px;
+        height: 100px;
+        align-self: center; /* Center image when stacked */
+    }
+    .details {
+        width: 100%; /* Take full width */
+    }
+    .deleteButton {
+        align-self: flex-end; /* Keep delete button to the right */
+    }
+     .header {
+         justify-content: center; /* Center header items */
+         text-align: center;
+     }
+     .title {
+         width: 100%; /* Title takes full width */
+         margin-bottom: 0.5rem;
+     }
+     .backLink {
+         display: block; /* Make link block */
+         width: fit-content;
+         margin: 0 auto; /* Center link */
+     }
+     .clearAllButton {
+         align-self: center; /* Center clear button */
+     }
+  }

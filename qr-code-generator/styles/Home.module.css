@@ -1,0 +1,188 @@
+.container {
+    padding: 0 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f8f9fa; /* Light background */
+  }
+  
+  .main {
+    padding: 4rem 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px; /* Max width for content */
+  }
+  
+  .title {
+    margin: 0;
+    line-height: 1.15;
+    font-size: 3rem; /* Smaller title */
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+  }
+  
+  .inputSection {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Space between textarea and controls */
+    margin-bottom: 2rem;
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .textarea {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    resize: vertical; /* Allow vertical resizing */
+    min-height: 80px;
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+  }
+  
+  .controls {
+    display: flex;
+    gap: 1rem; /* Space between select and button */
+    align-items: center;
+  }
+  
+  .select {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    flex-grow: 1; /* Allow select to take available space */
+     background-color: #fff; /* Ensure select background */
+  }
+  
+  .button {
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007bff; /* Blue */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .button:hover {
+    background-color: #0056b3; /* Darker blue */
+  }
+  
+  .outputSection {
+    width: 100%;
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .outputSection h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: #555;
+  }
+  
+  .canvasContainer {
+      position: relative; /* Needed for placeholder positioning */
+      margin-bottom: 1.5rem;
+      border: 1px dashed #ccc; /* Optional: add border around canvas area */
+      display: inline-block; /* Fit container to canvas */
+      /* Ensure container has min size even if canvas is hidden initially */
+      min-width: 256px;
+      min-height: 150px;
+      background-color: #fff; /* Canvas background */
+  }
+  
+  .canvas {
+    display: block; /* Remove extra space below canvas */
+    max-width: 100%; /* Ensure canvas is responsive */
+    height: auto; /* Maintain aspect ratio */
+  }
+  
+  /* Placeholder text when no code is generated */
+  .placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #888;
+      font-style: italic;
+      background-color: rgba(240, 240, 240, 0.5); /* Slight background */
+      z-index: 1; /* Ensure it's above the (empty) canvas */
+      box-sizing: border-box;
+      padding: 10px;
+      text-align: center;
+  }
+  
+  
+  .error {
+    color: #dc3545; /* Red */
+    background-color: #f8d7da; /* Light red background */
+    border: 1px solid #f5c6cb; /* Red border */
+    padding: 0.75rem 1.25rem;
+    margin-top: 1rem;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 1rem; /* Space between action buttons */
+    margin-top: 1rem; /* Space above buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    justify-content: center;
+  }
+  
+  .buttonAction {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    color: #fff;
+    background-color: #6c757d; /* Gray */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .buttonAction:hover {
+    background-color: #5a6268; /* Darker gray */
+  }
+  
+  /* Basic responsiveness */
+  @media (max-width: 600px) {
+    .title {
+      font-size: 2.5rem;
+    }
+    .controls {
+        flex-direction: column;
+        align-items: stretch; /* Make select/button full width */
+    }
+    .main {
+        padding: 2rem 0;
+    }
+    .inputSection, .outputSection {
+        padding: 1rem;
+    }
+  }

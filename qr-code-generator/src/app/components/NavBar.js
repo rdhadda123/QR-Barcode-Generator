@@ -15,6 +15,7 @@ export default function Navbar() {
           data: { session },
           error,
         } = await supabase.auth.getSession();
+
         if (session?.user) {
           setUser(session.user);
         }
@@ -38,14 +39,14 @@ export default function Navbar() {
   
     return (
       <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-blue-600">
+        <Link href="/" className="text-xl font-bold text-sky-900">
           QR Link Generator
         </Link>
         <div className="space-x-4">
-          <Link href="/" className="text-blue-600 hover:underline">
+          <Link href="/" className="text-sky-900 hover:underline">
             Home
           </Link>
-          <Link href="/qrcode" className="text-blue-600 hover:underline">
+          <Link href="/qrcode" className="text-sky-900 hover:underline">
             My Codes
           </Link>
           {user ? (
@@ -53,13 +54,13 @@ export default function Navbar() {
               <span className="text-gray-800">Hello, {user.email}</span>
               <button
                 onClick={handleLogout}
-                className="text-red-600 hover:underline"
+                className="text-red-600 hover:underline cursor-pointer"
               >
                 Sign Out
               </button>
             </>
           ) : (
-            <Link href="/login" className="text-blue-600 hover:underline">
+            <Link href="/login" className="text-sky-900 hover:underline">
               Login / Sign Up
             </Link>
           )}
