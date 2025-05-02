@@ -3,27 +3,32 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import AuthPage from './page'; 
 import '@testing-library/jest-dom';
 
+// Mock Next.js navigation components
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: jest.fn(),
   }),
 }));
 
+// Mock Next.js Link component
 jest.mock('next/link', () => {
   return ({ children, href }) => {
     return <a href={href}>{children}</a>;
   };
 });
 
+// Mock NavBar component
 jest.mock('../components/NavBar', () => {
   return function MockNavBar() {
     return <div data-testid="navbar">NavBar</div>;
   };
 });
 
-const mockSignInWithPassword = jest.fn().mockResolvedValue({ data: { user: { id: '123' } }, error: null });
-const mockSignUp = jest.fn().mockResolvedValue({ data: { user: { id: '123' } }, error: null });
+// Mock Supabase auth methods
+const mockSignInWithPassword = jest.fn();
+const mockSignUp = jest.fn();
 
+// Mock Supabase client
 jest.mock('../../supabase.js', () => ({
   getSupabaseClient: jest.fn().mockReturnValue({
     auth: {
@@ -33,43 +38,49 @@ jest.mock('../../supabase.js', () => ({
   }),
 }));
 
-// Test suite for the AuthPage component which handles user authentication
+// Test suite for the AuthPage component
 describe('AuthPage Component', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    
+    // Default mock implementations
+    mockSignInWithPassword.mockResolvedValue({ 
+      data: { user: { id: '123' } }, 
+      error: null 
+    });
+    mockSignUp.mockResolvedValue({ 
+      data: { user: { id: '123' } }, 
+      error: null 
+    });
+  });
 
-  // Test case: Verify the login form is displayed by default when the component renders
+  // Test case: Verify default login form rendering
   it('renders login form by default', () => {
     render(<AuthPage />);
 
-    // Assert that login heading exists in the document
+    // Assert login form elements are present
     expect(screen.getByRole('heading', { name: /log in/i })).toBeInTheDocument();
-
-    // Assert that email input field exists
     expect(screen.getByPlaceholderText(/email/i)).toBeInTheDocument();
-
-    // Assert that password input field exists
     expect(screen.getByPlaceholderText(/password/i)).toBeInTheDocument();
   });
 
-  // Test case: Verify user can switch from login form to sign up form
+  // Test case: Verify form switching functionality
   it('can switch to sign up form', () => {
     render(<AuthPage />);
 
-    const toggleButton = screen.getByRole('button', { name: /sign up/i });
-    fireEvent.click(toggleButton);
+    // Action: Switch to sign up form
+    fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
 
-    // Assert that first name input field appears in sign up form
+    // Assert sign up form elements are present
     expect(screen.getByPlaceholderText(/first name/i)).toBeInTheDocument();
-
-    // Assert that last name input field appears in sign up form
     expect(screen.getByPlaceholderText(/last name/i)).toBeInTheDocument();
   });
 
-  // Test case: Verify login form submission calls Supabase with correct data
+  // Test case: Verify login form submission
   it('submits login form with correct data', async () => {
     render(<AuthPage />);
     
-    mockSignInWithPassword.mockClear();
-    
+    // Action: Fill out and submit login form
     fireEvent.change(screen.getByPlaceholderText(/email/i), {
       target: { value: 'test@example.com' }
     });
@@ -78,30 +89,26 @@ describe('AuthPage Component', () => {
     });
     
     await act(async () => {
-      const loginButton = screen.getByRole('button', { name: /log in/i });
-      fireEvent.click(loginButton);
-      
-      await new Promise(resolve => setTimeout(resolve, 0));
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
     });
     
-    // Verify that signInWithPassword was called with correct arguments
+    // Assert: Supabase auth was called with correct credentials
     expect(mockSignInWithPassword).toHaveBeenCalledWith({
       email: 'test@example.com',
       password: 'password123'
     });
   });
   
-  // Test case: Verify signup form submission calls Supabase with correct data
+  // Test case: Verify signup form submission
   it('submits signup form with correct data', async () => {
     render(<AuthPage />);
     
+    // Action: Switch to sign up form
     await act(async () => {
-      const toggleButton = screen.getByRole('button', { name: /sign up/i });
-      fireEvent.click(toggleButton);
+      fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
     });
     
-    mockSignUp.mockClear();
-    
+    // Action: Fill out and submit sign up form
     fireEvent.change(screen.getByPlaceholderText(/first name/i), {
       target: { value: 'John' }
     });
@@ -116,13 +123,10 @@ describe('AuthPage Component', () => {
     });
     
     await act(async () => {
-      const signupButton = screen.getByRole('button', { name: /sign up/i });
-      fireEvent.click(signupButton);
-      
-      await new Promise(resolve => setTimeout(resolve, 0));
+      fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
     });
     
-    // Verify that signUp was called with correct arguments
+    // Assert: Supabase signup was called with correct user data
     expect(mockSignUp).toHaveBeenCalledWith({
       email: 'john.doe@example.com',
       password: 'securepassword',
@@ -132,6 +136,34 @@ describe('AuthPage Component', () => {
           last_name: 'Doe'
         }
       }
+    });
+  });
+
+  // Test case: Verify error handling for failed login
+  it('handles login errors', async () => {
+    // Setup: Mock failed login
+    mockSignInWithPassword.mockResolvedValue({
+      data: null,
+      error: { message: 'Invalid credentials' }
+    });
+
+    render(<AuthPage />);
+    
+    // Action: Submit invalid credentials
+    fireEvent.change(screen.getByPlaceholderText(/email/i), {
+      target: { value: 'wrong@example.com' }
+    });
+    fireEvent.change(screen.getByPlaceholderText(/password/i), {
+      target: { value: 'wrongpass' }
+    });
+    
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
+    });
+    
+    // Assert: Error message should be displayed
+    await waitFor(() => {
+      expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument();
     });
   });
 });
