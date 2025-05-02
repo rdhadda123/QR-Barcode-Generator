@@ -1,4 +1,5 @@
 "use client"
+import React from 'react';
 import Link from 'next/link';
 import { useState } from "react";
 import { supabase } from "../../supabase";
@@ -23,7 +24,7 @@ export default function AuthPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+    
     try {
       let { user, error } = isSignUp
         ? await supabase.auth.signUp({

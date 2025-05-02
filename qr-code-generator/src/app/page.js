@@ -45,15 +45,15 @@ const Home = () => {
         setUser(session.user);
       }
     };
-
+  
     getSession();
-
+  
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
     });
-
+  
     return () => {
-      listener.subscription.unsubscribe();
+      listener?.subscription.unsubscribe();
     };
   }, []);
 
@@ -179,42 +179,61 @@ const Home = () => {
   };
 
   const handleSave = async () => {
-      if (!generatedCodeDataUrl) {
-          alert('No code generated to save.');
-          return;
-      }
+    if (!generatedCodeDataUrl) {
+        alert('No code generated to save.');
+        return;
+    }
 
-      const {
-          data: { user },
-          error: userError
-      } = await supabase.auth.getUser();
+    const {
+        data: { user },
+        error: userError
+    } = await supabase.auth.getUser();
 
-      if (userError || !user) {
-          alert('You must be logged in to save codes');
-          return;
-      }
+    if (userError || !user) {
+        alert('You must be logged in to save codes');
+        return;
+    }
 
-      try {
-          const { error: insertError } = await supabase.from('QRCodes').insert([
-              {
-                  user_id: user.id,
-                  text: inputText,
-                  type: codeType,
-                  data_url: generatedCodeDataUrl,
-              },
-          ]);
+    try {
+        // Check if QR code already exists for this user
+        const { data: existingCodes, error: selectError } = await supabase
+            .from('QRCodes')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('text', inputText)
+            .eq('type', codeType);
 
-          if (insertError) {
-              console.error('Supabase insert error:', insertError);
-              alert('Failed to save code to Supabase.');
-          } else {
-              alert('Code saved to your Supabase account!');
-          }
-      } catch (err) {
-          console.error('Unexpected error saving to Supabase:', err);
-          alert('Unexpected error saving code.');
-      }
-  };
+        if (selectError) {
+            console.error('Supabase select error:', selectError);
+            alert('Failed to check for existing code.');
+            return;
+        }
+
+        if (existingCodes && existingCodes.length > 0) {
+            alert('Code already saved');
+            return;
+        }
+
+        const { error: insertError } = await supabase.from('QRCodes').insert([
+            {
+                user_id: user.id,
+                text: inputText,
+                type: codeType,
+                data_url: generatedCodeDataUrl,
+            },
+        ]);
+
+        if (insertError) {
+            console.error('Supabase insert error:', insertError);
+            alert('Failed to save code to Supabase.');
+        } else {
+            alert('Code saved to your Supabase account!');
+        }
+    } catch (err) {
+        console.error('Unexpected error saving to Supabase:', err);
+        alert('Unexpected error saving code.');
+    }
+};
 
 
 

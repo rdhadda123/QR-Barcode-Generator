@@ -15,6 +15,7 @@ export default function Navbar() {
           data: { session },
           error,
         } = await supabase.auth.getSession();
+
         if (session?.user) {
           setUser(session.user);
         }
