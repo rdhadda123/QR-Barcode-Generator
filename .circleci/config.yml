@@ -40,7 +40,7 @@ jobs:
 
       - run:
           name: Deploy to Vercel
-          command: vercel deploy --prod --yes --token=$VERCEL_TOKEN
+          command: vercel deploy --prod --yes --prebuilt --token=$VERCEL_TOKEN
 
 workflows:
   deploy:
