@@ -208,7 +208,7 @@ const Home = () => {
 
           savedCodes.push(newSave);
           localStorage.setItem('savedCodes', JSON.stringify(savedCodes));
-          alert('Code saved successfully! (Check browser local storage)');
+          alert('Code saved successfully! Check your My Codes tab!');
       } catch (error) {
           console.error('Failed to save code:', error);
           alert('Failed to save code to local storage. Storage might be full or disabled.');
@@ -292,7 +292,7 @@ const Home = () => {
                  </button>
               )}
                <button className={styles.buttonAction} onClick={handleSave}>
-                 Save (Local)
+                 Save
                </button>
             </div>
           )}
