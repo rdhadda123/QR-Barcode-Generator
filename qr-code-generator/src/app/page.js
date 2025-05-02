@@ -6,7 +6,7 @@ import JsBarcode from 'jsbarcode';
 import styles from '../../styles/Home.module.css'
 import Link from 'next/link';
 import NavBar from './components/NavBar';
-import { supabase } from '../supabase';
+import { getSupabaseClient } from "../supabase";
 
 const barcodeTypes = [
   'CODE128',
@@ -36,6 +36,8 @@ const Home = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    const supabase = getSupabaseClient();
+  
     const getSession = async () => {
       const {
         data: { session },
@@ -45,15 +47,15 @@ const Home = () => {
         setUser(session.user);
       }
     };
-
+  
     getSession();
-
+  
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
     });
-
+  
     return () => {
-      listener.subscription.unsubscribe();
+      listener?.subscription.unsubscribe();
     };
   }, []);
 

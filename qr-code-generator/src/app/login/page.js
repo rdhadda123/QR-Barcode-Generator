@@ -1,7 +1,8 @@
 "use client"
+import React from 'react';
 import Link from 'next/link';
 import { useState } from "react";
-import { supabase } from "../../supabase";
+import { getSupabaseClient } from "../../supabase";
 import { useRouter } from "next/navigation";
 import NavBar from '../components/NavBar';
 
@@ -24,6 +25,8 @@ export default function AuthPage() {
     setLoading(true);
     setError(null);
 
+    const supabase = getSupabaseClient();
+    
     try {
       let { user, error } = isSignUp
         ? await supabase.auth.signUp({

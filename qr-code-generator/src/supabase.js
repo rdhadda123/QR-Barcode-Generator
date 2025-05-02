@@ -1,6 +1,12 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SBURL
-const supabaseKey = process.env.NEXT_PUBLIC_SBKEY
+export function getSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SBURL;
+  const key = process.env.NEXT_PUBLIC_SBKEY;
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+  if (!url || !key) {
+    throw new Error('Supabase environment variables are not set');
+  }
+
+  return createClient(url, key);
+}
