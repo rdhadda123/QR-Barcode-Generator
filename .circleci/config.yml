@@ -36,7 +36,7 @@ jobs:
 
       - run:
           name: Build project (Vercel)
-          command: vercel build --token=$VERCEL_TOKEN
+          command: vercel build --token=$VERCEL_TOKEN --environment=production
 
       - run:
           name: Deploy to Vercel
