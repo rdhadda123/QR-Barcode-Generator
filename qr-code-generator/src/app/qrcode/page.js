@@ -15,34 +15,33 @@ const QRcode = () => {
     const fetchUserAndCodes = async () => {
       setIsLoading(true);
       const supabase = getSupabaseClient();
-      
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
+    
+      const response = await supabase.auth.getUser();
+      const user = response?.data?.user; 
+      const userError = response?.error;
+    
       if (userError || !user) {
         setUser(null);
         setSavedItems([]);
         setIsLoading(false);
         return;
       }
-
+    
       setUser(user);
-
+    
       const { data, error } = await supabase
-          .from('QRCodes')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-
+        .from('QRCodes')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+    
       if (error) {
         console.error("Error fetching saved codes from Supabase:", error);
         setSavedItems([]);
       } else {
         setSavedItems(data || []);
       }
-
+    
       setIsLoading(false);
     };
 
@@ -59,6 +58,7 @@ const QRcode = () => {
   };
 
   const handleDelete = async (id) => {
+    const supabase = getSupabaseClient(); 
     const { error } = await supabase.from('QRCodes').delete().eq('id', id);
     if (error) {
       console.error('Failed to delete QR code:', error);
