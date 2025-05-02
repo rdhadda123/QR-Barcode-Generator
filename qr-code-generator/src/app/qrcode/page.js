@@ -56,6 +56,16 @@ const QRcode = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    const { error } = await supabase.from('QRCodes').delete().eq('id', id);
+    if (error) {
+      console.error('Failed to delete QR code:', error);
+      alert('Failed to delete QR code.');
+    } else {
+      setSavedItems((prev) => prev.filter((item) => item.id !== id));
+    }
+  };
+
   return (
       <div className={styles.container}>
         <Head>
@@ -79,7 +89,25 @@ const QRcode = () => {
           ) : savedItems.length > 0 ? (
               <ul className={styles.list}>
                 {savedItems.map((item) => (
-                    <li key={item.id} className={styles.listItem}>
+                    <li key={item.id} className={styles.listItem} style={{ position: 'relative' }}>
+                      <button
+                          onClick={() => handleDelete(item.id)}
+                          className={styles.deleteText}
+                          style={{
+                            position: 'absolute',
+                            top: '10px',
+                            right: '10px',
+                            background: 'none',
+                            border: 'none',
+                            color: '#dc2626',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                          }}
+                      >
+                        Delete
+                      </button>
+
+
                       <div className={styles.imageContainer}>
                         {item.data_url ? (
                             <img

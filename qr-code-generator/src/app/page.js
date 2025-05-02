@@ -172,7 +172,6 @@ const Home = () => {
       }
 
       try {
-          console.log("heloo!")
           const { error: insertError } = await supabase.from('QRCodes').insert([
               {
                   user_id: user.id,
@@ -195,7 +194,10 @@ const Home = () => {
   };
 
 
-  return (
+
+
+
+    return (
     <div>
       <NavBar></NavBar>
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-sky-900">
