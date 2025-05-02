@@ -8,6 +8,7 @@ import Link from 'next/link';
 import NavBar from './components/NavBar';
 import {supabase} from "@/supabase";
 
+//Test commit
 const barcodeTypes = [
   'CODE128',
   'CODE39',
