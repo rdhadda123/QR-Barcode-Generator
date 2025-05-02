@@ -5,6 +5,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { supabase } from '../../supabase'; // adjust if needed
 import styles from '../../../styles/Saved.module.css';
+import Navbar from '../components/NavBar';
 
 const QRcode = () => {
   const [savedItems, setSavedItems] = useState([]);
@@ -67,6 +68,8 @@ const QRcode = () => {
   };
 
   return (
+    <div>
+      <Navbar></Navbar>
       <div className={styles.container}>
         <Head>
           <title>Saved Codes</title>
@@ -77,9 +80,6 @@ const QRcode = () => {
         <main className={styles.main}>
           <div className={styles.header}>
             <h1 className={styles.title}>My Saved Codes</h1>
-            <Link href="/" className={styles.backLink}>
-              ← Back to Generator
-            </Link>
           </div>
 
           {isLoading ? (
@@ -132,6 +132,7 @@ const QRcode = () => {
           )}
         </main>
       </div>
+    </div>
   );
 };
 
