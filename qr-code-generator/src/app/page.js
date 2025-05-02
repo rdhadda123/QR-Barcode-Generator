@@ -6,6 +6,7 @@ import JsBarcode from 'jsbarcode';
 import styles from '../../styles/Home.module.css'
 import Link from 'next/link';
 import NavBar from './components/NavBar';
+import {supabase} from "@/supabase";
 
 const barcodeTypes = [
   'CODE128',
@@ -154,34 +155,42 @@ const Home = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
       if (!generatedCodeDataUrl) {
           alert('No code generated to save.');
           return;
       }
+
+      const {
+          data: { user },
+          error: userError
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+          alert('You must be logged in to save codes');
+          return;
+      }
+
       try {
-          const savedCodes = JSON.parse(localStorage.getItem('savedCodes') || '[]');
+          console.log("heloo!")
+          const { error: insertError } = await supabase.from('QRCodes').insert([
+              {
+                  user_id: user.id,
+                  text: inputText,
+                  type: codeType,
+                  data_url: generatedCodeDataUrl,
+              },
+          ]);
 
-          const newSave = {
-              id: Date.now(),
-              text: inputText,
-              type: codeType,
-              dataUrl: generatedCodeDataUrl,
-              timestamp: new Date().toISOString(),
-          };
-
-          const isDuplicate = savedCodes.some(code => code.text === inputText && code.type === codeType);
-           if (isDuplicate) {
-               alert('This code (text and type combination) is already saved.');
-               return; 
-           }
-
-          savedCodes.push(newSave);
-          localStorage.setItem('savedCodes', JSON.stringify(savedCodes));
-          alert('Code saved successfully! (Check browser local storage)');
-      } catch (error) {
-          console.error('Failed to save code:', error);
-          alert('Failed to save code to local storage. Storage might be full or disabled.');
+          if (insertError) {
+              console.error('Supabase insert error:', insertError);
+              alert('Failed to save code to Supabase.');
+          } else {
+              alert('Code saved to your Supabase account!');
+          }
+      } catch (err) {
+          console.error('Unexpected error saving to Supabase:', err);
+          alert('Unexpected error saving code.');
       }
   };
 
@@ -258,7 +267,7 @@ const Home = () => {
                  </button>
               )}
                <button className={styles.buttonAction} onClick={handleSave}>
-                 Save (Local)
+                 Save
                </button>
             </div>
           )}
