@@ -6,7 +6,7 @@ import JsBarcode from 'jsbarcode';
 import styles from '../../styles/Home.module.css'
 import Link from 'next/link';
 import NavBar from './components/NavBar';
-import { getSupabaseClient } from "../supabase";
+import {supabase} from "@/supabase";
 
 const barcodeTypes = [
   'CODE128',
@@ -36,8 +36,6 @@ const Home = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const supabase = getSupabaseClient();
-  
     const getSession = async () => {
       const {
         data: { session },
@@ -180,43 +178,68 @@ const Home = () => {
     }
   };
 
-  const handleSave = () => {
-      if (!user) {
-        alert('Please login or register to save codes.');
+  const handleSave = async () => {
+    if (!generatedCodeDataUrl) {
+        alert('No code generated to save.');
         return;
-      }
-      if (!generatedCodeDataUrl) {
-          alert('No code generated to save.');
-          return;
-      }
-      try {
-          const savedCodes = JSON.parse(localStorage.getItem('savedCodes') || '[]');
+    }
 
-          const newSave = {
-              id: Date.now(),
-              text: inputText,
-              type: codeType,
-              dataUrl: generatedCodeDataUrl,
-              timestamp: new Date().toISOString(),
-          };
+    const {
+        data: { user },
+        error: userError
+    } = await supabase.auth.getUser();
 
-          const isDuplicate = savedCodes.some(code => code.text === inputText && code.type === codeType);
-           if (isDuplicate) {
-               alert('This code (text and type combination) is already saved.');
-               return; 
-           }
+    if (userError || !user) {
+        alert('You must be logged in to save codes');
+        return;
+    }
 
-          savedCodes.push(newSave);
-          localStorage.setItem('savedCodes', JSON.stringify(savedCodes));
-          alert('Code saved successfully! Check your My Codes tab!');
-      } catch (error) {
-          console.error('Failed to save code:', error);
-          alert('Failed to save code to local storage. Storage might be full or disabled.');
-      }
-  };
+    try {
+        // Check if QR code already exists for this user
+        const { data: existingCodes, error: selectError } = await supabase
+            .from('QRCodes')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('text', inputText)
+            .eq('type', codeType);
+
+        if (selectError) {
+            console.error('Supabase select error:', selectError);
+            alert('Failed to check for existing code.');
+            return;
+        }
+
+        if (existingCodes && existingCodes.length > 0) {
+            alert('Code already saved');
+            return;
+        }
+
+        const { error: insertError } = await supabase.from('QRCodes').insert([
+            {
+                user_id: user.id,
+                text: inputText,
+                type: codeType,
+                data_url: generatedCodeDataUrl,
+            },
+        ]);
+
+        if (insertError) {
+            console.error('Supabase insert error:', insertError);
+            alert('Failed to save code to Supabase.');
+        } else {
+            alert('Code saved to your Supabase account!');
+        }
+    } catch (err) {
+        console.error('Unexpected error saving to Supabase:', err);
+        alert('Unexpected error saving code.');
+    }
+};
 
 
-  return (
+
+
+
+    return (
     <div>
       <NavBar></NavBar>
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-sky-900">

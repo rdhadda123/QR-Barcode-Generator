@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { getSupabaseClient } from "../../supabase";
+import { supabase } from '../../supabase'; // adjust if needed
 import styles from '../../../styles/Saved.module.css';
 import Navbar from '../components/NavBar';
 
@@ -15,34 +15,33 @@ const QRcode = () => {
   useEffect(() => {
     const fetchUserAndCodes = async () => {
       setIsLoading(true);
-      const supabase = getSupabaseClient();
-    
-      const response = await supabase.auth.getUser();
-      const user = response?.data?.user; 
-      const userError = response?.error;
-    
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
       if (userError || !user) {
         setUser(null);
         setSavedItems([]);
         setIsLoading(false);
         return;
       }
-    
+
       setUser(user);
-    
+
       const { data, error } = await supabase
-        .from('QRCodes')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-    
+          .from('QRCodes')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
       if (error) {
         console.error("Error fetching saved codes from Supabase:", error);
         setSavedItems([]);
       } else {
         setSavedItems(data || []);
       }
-    
+
       setIsLoading(false);
     };
 
@@ -59,7 +58,6 @@ const QRcode = () => {
   };
 
   const handleDelete = async (id) => {
-    const supabase = getSupabaseClient(); 
     const { error } = await supabase.from('QRCodes').delete().eq('id', id);
     if (error) {
       console.error('Failed to delete QR code:', error);

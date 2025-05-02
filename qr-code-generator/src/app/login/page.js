@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useState } from "react";
-import { getSupabaseClient } from "../../supabase";
+import { supabase } from "../../supabase";
 import { useRouter } from "next/navigation";
 import NavBar from '../components/NavBar';
 
@@ -24,8 +24,6 @@ export default function AuthPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
-    const supabase = getSupabaseClient();
     
     try {
       let { user, error } = isSignUp
