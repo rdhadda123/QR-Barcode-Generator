@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { supabase } from '../../supabase'; // adjust if needed
+import { supabase } from '../../supabase'; 
 import styles from '../../../styles/Saved.module.css';
 import Navbar from '../components/NavBar';
 
@@ -103,6 +103,7 @@ const QRcode = () => {
                             fontWeight: 'bold',
                             cursor: 'pointer',
                           }}
+                          aria-label={`Delete ${item.text}`}
                       >
                         Delete
                       </button>

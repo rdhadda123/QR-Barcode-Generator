@@ -12,162 +12,218 @@ jest.mock('../../../styles/Saved.module.css', () => ({
     noImage: 'noImage',
     details: 'details',
     emptyMessage: 'emptyMessage',
-  }));
+}));
   
-  import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
-  import '@testing-library/jest-dom';
-  import QRcode from './page';
+jest.mock('../../supabase', () => {
+    const mockFrom = jest.fn(() => ({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockReturnThis(),
+        delete: jest.fn().mockReturnThis(),
+    }));
+    
+    return {
+        supabase: {
+            from: mockFrom,
+            auth: {
+                getUser: jest.fn().mockResolvedValue({
+                    data: { user: { id: 'test-user-id' } },
+                    error: null,
+                }),
+            },
+        },
+    };
+});
   
-  // Mock Next.js navigation
-  jest.mock('next/navigation', () => ({
-    useRouter: () => ({
-      push: jest.fn(),
-    }),
-  }));
+jest.mock('next/navigation', () => ({
+    useRouter: () => ({ push: jest.fn() }),
+}));
   
-  // Mock NavBar component to avoid router issues
-  jest.mock('../components/NavBar', () => () => (
-    <div data-testid="navbar">NavBar Mock</div>
-  ));
+jest.mock('../components/NavBar', () => () => (
+    <div data-testid="mock-navbar">Mock NavBar</div>
+));
   
-  // Mock Supabase client
-  const mockFrom = jest.fn();
-  const mockSelect = jest.fn();
-  const mockEq = jest.fn();
-  const mockOrder = jest.fn();
-  const mockDelete = jest.fn();
-  const mockGetUser = jest.fn();
+import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import QRcode from './page';
   
-  jest.mock('../../supabase', () => ({
-    createClient: jest.fn(() => ({
-      from: mockFrom,
-      auth: {
-        getUser: mockGetUser,
-      },
-    })),
-  }));
+const { supabase } = require('../../supabase');
+const mockFrom = supabase.from;
+const mockAuth = supabase.auth;
   
-  describe('QRcode Page', () => {
+// Test suite for QRcode Page component
+describe('QRcode Page', () => {
     beforeEach(() => {
+      // Clear all mocks before each test
       jest.clearAllMocks();
+    });
+    
+    // Test case: Displaying saved QR codes
+    it('displays saved QR codes', async () => {
+      // Setup mock data
+      const { supabase } = require('../../supabase');
       
-      mockFrom.mockImplementation(() => ({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            order: mockOrder,
-          }),
+      supabase.from.mockReturnValueOnce({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockResolvedValue({
+          data: [{
+            id: '1',
+            text: 'Test QR',
+            type: 'QR',
+            data_url: 'data:image/png;base64,mock-image-data',
+            created_at: new Date().toISOString(),
+          }],
+          error: null,
         }),
-        delete: jest.fn().mockReturnValue({
+      });
+  
+
+      await act(async () => {
+        render(<QRcode />);
+      });
+  
+      screen.debug();
+  
+      // Assert that the QR code data is displayed
+      await waitFor(() => {
+        // Verify QR code text appears
+        expect(screen.getByText(/Test QR/i)).toBeInTheDocument();
+        // Verify details section appears
+        expect(screen.getByText(/Text:/i)).toBeInTheDocument();
+      });
+    });
+
+    // Test case: Handling errors when fetching codes
+    it('handles errors when fetching codes', async () => {
+        // Setup mock user but error in data fetch
+        mockAuth.getUser.mockResolvedValueOnce({
+          data: { user: { id: 'test-user-id' } },
+          error: null,
+        });
+      
+        // Mock database error
+        supabase.from()
+          .select()
+          .eq()
+          .order.mockResolvedValueOnce({
+            data: null,
+            error: { message: 'Database error' },
+          });
+      
+        await act(async () => {
+          render(<QRcode />);
+        });
+      
+        // Assert empty state is shown
+        await waitFor(() => {
+          expect(screen.getByText(/you haven't saved any codes yet/i)).toBeInTheDocument();
+        });
+      });
+
+      // Test case: Unauthenticated user flow
+      it('shows login prompt for unauthenticated users', async () => {
+        // Setup unauthenticated user
+        mockAuth.getUser.mockResolvedValueOnce({
+          data: { user: null },
+          error: { message: 'Not authenticated' },
+        });
+      
+        await act(async () => {
+          render(<QRcode />);
+        });
+      
+        // Assert login prompt appears
+        await waitFor(() => {
+          expect(screen.getByText(/please log in to view your saved codes/i)).toBeInTheDocument();
+        });
+      });
+      
+      // Test case: Loading state
+      it('shows loading state initially', async () => {
+        // Setup pending auth request
+        mockAuth.getUser.mockImplementationOnce(() => new Promise(() => {}));
+      
+        // Render component
+        await act(async () => {
+          render(<QRcode />);
+        });
+      
+        // Assert loading indicator appears
+        expect(screen.getByText(/loading saved codes/i)).toBeInTheDocument();
+      });
+      
+      // Test case: Empty state
+      it('shows empty state when no codes exist', async () => {
+        // Setup authenticated user with no saved codes
+        mockAuth.getUser.mockResolvedValueOnce({
+          data: { user: { id: 'test-user-id' } },
+          error: null,
+        });
+      
+        supabase.from()
+          .select()
+          .eq()
+          .order.mockResolvedValueOnce({
+            data: [],
+            error: null,
+          });
+      
+        await act(async () => {
+          render(<QRcode />);
+        });
+      
+        // Assert empty state message appears
+        await waitFor(() => {
+          expect(screen.getByText(/you haven't saved any codes yet/i)).toBeInTheDocument();
+        });
+      });
+  
+    // Test case: Deleting QR codes
+    it('deletes QR codes', async () => {
+        // Setup mock data with one QR code
+        const { supabase } = require('../../supabase');
+        
+        supabase.from.mockReturnValueOnce({
+          select: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnThis(),
+          order: jest.fn().mockResolvedValue({
+            data: [{
+              id: '1',
+              text: 'To Delete',
+              type: 'QR',
+              data_url: 'data:image/png;base64,mock',
+              created_at: new Date().toISOString(),
+            }],
+            error: null,
+          }),
+        });
+      
+        // Setup successful delete response
+        supabase.from.mockReturnValueOnce({
+          delete: jest.fn().mockReturnThis(),
           eq: jest.fn().mockResolvedValue({ error: null }),
-        }),
-      }));
-    });
-  
-    it('displays loading message while fetching data', async () => {
-      mockGetUser.mockImplementation(() => new Promise(() => {}));
+        });
       
-      await act(async () => {
-        render(<QRcode />);
-      });
+        await act(async () => {
+          render(<QRcode />);
+        });
       
-      expect(screen.getByText('Loading saved codes...')).toBeInTheDocument();
-    });
-  
-    it('displays message if user is not logged in', async () => {
-      mockGetUser.mockResolvedValue({ data: null, error: null });
+        await waitFor(() => {
+          // Assert item exists before deletion
+          expect(screen.getByText('To Delete')).toBeInTheDocument();
+        });
       
-      await act(async () => {
-        render(<QRcode />);
-      });
+        const deleteButton = screen.getByRole('button', { name: /delete/i });
+        
+        await act(async () => {
+          fireEvent.click(deleteButton);
+        });
       
-      await waitFor(() => {
-        expect(screen.getByText('Please log in to view your saved codes.'))
-          .toBeInTheDocument();
+        // Verify deletion was successful
+        await waitFor(() => {
+          // Assert item no longer exists
+          expect(screen.queryByText('To Delete')).not.toBeInTheDocument();
+        });
       });
-    });
-  
-    it('displays saved items when user is logged in', async () => {
-      mockGetUser.mockResolvedValue({
-        data: { user: { id: 'user-id' } },
-        error: null,
-      });
-      
-      mockOrder.mockResolvedValue({
-        data: [{
-          id: '1',
-          text: 'Test Code',
-          type: 'QR',
-          created_at: '2025-05-02T00:00:00Z',
-          data_url: 'data:image/png;base64,...',
-        }],
-        error: null,
-      });
-      
-      await act(async () => {
-        render(<QRcode />);
-      });
-      
-      await waitFor(() => {
-        expect(screen.getByText('Test Code')).toBeInTheDocument();
-      });
-    });
-  
-    it('displays empty message when no saved items', async () => {
-      mockGetUser.mockResolvedValue({
-        data: { user: { id: 'user-id' } },
-        error: null,
-      });
-      
-      mockOrder.mockResolvedValue({ data: [], error: null });
-      
-      await act(async () => {
-        render(<QRcode />);
-      });
-      
-      await waitFor(() => {
-        expect(screen.getByText('You haven\'t saved any codes yet.'))
-          .toBeInTheDocument();
-      });
-    });
-  
-    it('deletes an item when delete button is clicked', async () => {
-      mockGetUser.mockResolvedValue({ 
-        data: { user: { id: 'user-id' } }, 
-        error: null 
-      });
-      
-      const mockDeleteFn = jest.fn().mockResolvedValue({ error: null });
-      mockFrom.mockImplementation(() => ({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            order: jest.fn().mockResolvedValue({
-              data: [{
-                id: '1',
-                text: 'Test Code',
-                type: 'QR',
-                created_at: '2025-05-02T00:00:00Z',
-                data_url: 'data:image/png;base64,...',
-              }],
-              error: null,
-            }),
-          }),
-        }),
-        delete: jest.fn().mockReturnValue({ eq: mockDeleteFn }),
-      }));
-      
-      await act(async () => {
-        render(<QRcode />);
-      });
-  
-      await waitFor(() => {
-        expect(screen.getByText('Test Code')).toBeInTheDocument();
-      });
-  
-      await act(async () => {
-        fireEvent.click(screen.getByText('Delete'));
-      });
-  
-      expect(mockFrom).toHaveBeenCalledWith('QRCodes');
-      expect(mockDeleteFn).toHaveBeenCalledWith('id', '1');
-    });
   });
