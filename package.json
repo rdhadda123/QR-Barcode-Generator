@@ -13,6 +13,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
     "jsbarcode": "^3.11.6",
+    "lightningcss": "^1.29.3",
     "next": "15.3.0",
     "qrcode": "^1.5.4",
     "react": "^19.0.0",
